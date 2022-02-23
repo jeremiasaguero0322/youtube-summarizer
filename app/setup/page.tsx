@@ -1,67 +1,88 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import { Check, Key, ChevronRight, ChevronLeft, Loader2, CheckCircle2, XCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { GlassCard, GlassCardContent, GlassCardHeader, GlassCardTitle, GlassCardDescription } from "@/components/ui/glass-card"
-import { AnimatedBackground } from "@/components/animated-background"
-import { useAuth } from "@/hooks/useAuth"
-import { containerVariants, itemVariants } from "@/lib/animations"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import {
+  Check,
+  Key,
+  ChevronRight,
+  ChevronLeft,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  GlassCard,
+  GlassCardContent,
+  GlassCardHeader,
+  GlassCardTitle,
+  GlassCardDescription,
+} from "@/components/ui/glass-card";
+import { AnimatedBackground } from "@/components/animated-background";
+import { useAuth } from "@/hooks/useAuth";
+import { containerVariants, itemVariants } from "@/lib/animations";
 
 export default function SetupWizard() {
-  const router = useRouter()
-  const { user, isAuthenticated, isLoading: authLoading, updateSetupCompleted } = useAuth()
-  const [isCheckingStatus, setIsCheckingStatus] = useState(true)
-  const [currentStep, setCurrentStep] = useState(1)
+  const router = useRouter();
+  const {
+    user,
+    isAuthenticated,
+    isLoading: authLoading,
+    updateSetupCompleted,
+  } = useAuth();
+  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+  const [currentStep, setCurrentStep] = useState(1);
 
   // Step 1: Supadata API key state
-  const [supadataKey, setSupadataKey] = useState("")
-  const [supadataStatus, setSupadataStatus] = useState<"idle" | "testing" | "success" | "error">("idle")
-  const [supadataError, setSupadataError] = useState("")
-  const [supadataSaving, setSupadataSaving] = useState(false)
+  const [supadataKey, setSupadataKey] = useState("");
+  const [supadataStatus, setSupadataStatus] = useState<
+    "idle" | "testing" | "success" | "error"
+  >("idle");
+  const [supadataError, setSupadataError] = useState("");
+  const [supadataSaving, setSupadataSaving] = useState(false);
 
   // Step 2: Z.AI API key state
-  const [zaiKey, setZaiKey] = useState("")
+  const [zaiKey, setZaiKey] = useState("");
 
-  const [step2Saving, setStep2Saving] = useState(false)
-  const [step2Error, setStep2Error] = useState("")
+  const [step2Saving, setStep2Saving] = useState(false);
+  const [step2Error, setStep2Error] = useState("");
 
   // Check auth and setup status on mount
   useEffect(() => {
-    if (authLoading) return
+    if (authLoading) return;
 
     // If not authenticated, redirect to login
     if (!isAuthenticated) {
-      router.replace("/login")
-      return
+      router.replace("/login");
+      return;
     }
 
     // If setup is already completed, redirect to home
     if (user?.setupCompleted) {
-      router.replace("/")
-      return
+      router.replace("/");
+      return;
     }
 
-    setIsCheckingStatus(false)
-  }, [authLoading, isAuthenticated, user, router])
+    setIsCheckingStatus(false);
+  }, [authLoading, isAuthenticated, user, router]);
 
   const handleNext = () => {
-    setCurrentStep((prev) => prev + 1)
-  }
+    setCurrentStep((prev) => prev + 1);
+  };
 
   const handleBack = () => {
-    setCurrentStep((prev) => prev - 1)
-  }
+    setCurrentStep((prev) => prev - 1);
+  };
 
   // Test Supadata API key
   const handleTestSupadata = async () => {
-    if (!supadataKey.trim()) return
+    if (!supadataKey.trim()) return;
 
-    setSupadataStatus("testing")
-    setSupadataError("")
+    setSupadataStatus("testing");
+    setSupadataError("");
 
     try {
       const response = await fetch("/api/setup/test-key", {
@@ -71,32 +92,32 @@ export default function SetupWizard() {
         },
         credentials: "include",
         body: JSON.stringify({ service: "supadata", apiKey: supadataKey }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        setSupadataStatus("error")
-        setSupadataError(data.error || `Test failed (${response.status})`)
-        return
+        setSupadataStatus("error");
+        setSupadataError(data.error || `Test failed (${response.status})`);
+        return;
       }
 
       if (data.success) {
-        setSupadataStatus("success")
+        setSupadataStatus("success");
       } else {
-        setSupadataStatus("error")
-        setSupadataError(data.error || "Validation failed")
+        setSupadataStatus("error");
+        setSupadataError(data.error || "Validation failed");
       }
     } catch {
-      setSupadataStatus("error")
-      setSupadataError("Failed to test API key")
+      setSupadataStatus("error");
+      setSupadataError("Failed to test API key");
     }
-  }
+  };
 
   // Save Supadata API key and proceed to next step
   const handleSaveSupadata = async () => {
-    setSupadataSaving(true)
-    setSupadataError("")
+    setSupadataSaving(true);
+    setSupadataError("");
 
     try {
       const response = await fetch("/api/setup/save-key", {
@@ -106,37 +127,39 @@ export default function SetupWizard() {
         },
         credentials: "include",
         body: JSON.stringify({ service: "supadata", apiKey: supadataKey }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        setSupadataError(data.error || `Failed to save API key (${response.status})`)
-        return
+        setSupadataError(
+          data.error || `Failed to save API key (${response.status})`,
+        );
+        return;
       }
 
       if (data.success) {
-        handleNext()
+        handleNext();
       } else {
-        setSupadataError(data.error || "Failed to save API key")
+        setSupadataError(data.error || "Failed to save API key");
       }
     } catch (err) {
-      console.error("Save Supadata error:", err)
-      setSupadataError("Failed to save API key")
+      console.error("Save Supadata error:", err);
+      setSupadataError("Failed to save API key");
     } finally {
-      setSupadataSaving(false)
+      setSupadataSaving(false);
     }
-  }
+  };
 
   // Save Z.AI key and finish setup
   const handleFinishSetup = async () => {
-    setStep2Saving(true)
-    setStep2Error("")
+    setStep2Saving(true);
+    setStep2Error("");
 
     if (!zaiKey.trim()) {
-      setStep2Error("Please enter your Z.AI API key")
-      setStep2Saving(false)
-      return
+      setStep2Error("Please enter your Z.AI API key");
+      setStep2Saving(false);
+      return;
     }
 
     try {
@@ -148,12 +171,12 @@ export default function SetupWizard() {
         },
         credentials: "include",
         body: JSON.stringify({ service: "zai", apiKey: zaiKey }),
-      })
-      const data = await response.json()
+      });
+      const data = await response.json();
       if (!data.success && !data.skipped) {
-        setStep2Error("Failed to save Z.AI API key")
-        setStep2Saving(false)
-        return
+        setStep2Error("Failed to save Z.AI API key");
+        setStep2Saving(false);
+        return;
       }
 
       // Mark setup as complete in database
@@ -163,28 +186,28 @@ export default function SetupWizard() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-      })
+      });
 
-      const completeData = await completeResponse.json()
+      const completeData = await completeResponse.json();
 
       if (completeData.success) {
         // Update local auth state
-        await updateSetupCompleted(true)
-        router.push("/")
+        await updateSetupCompleted(true);
+        router.push("/");
       } else {
-        setStep2Error("Failed to complete setup")
+        setStep2Error("Failed to complete setup");
       }
     } catch {
-      setStep2Error("Failed to save API keys")
+      setStep2Error("Failed to save API keys");
     } finally {
-      setStep2Saving(false)
+      setStep2Saving(false);
     }
-  }
+  };
 
   const steps = [
     { number: 1, title: "Supadata API" },
     { number: 2, title: "Z.AI API" },
-  ]
+  ];
 
   // Show loading state while checking auth/setup status
   if (authLoading || isCheckingStatus) {
@@ -200,7 +223,7 @@ export default function SetupWizard() {
           </GlassCard>
         </div>
       </>
-    )
+    );
   }
 
   return (
@@ -216,7 +239,9 @@ export default function SetupWizard() {
           <motion.div variants={itemVariants}>
             <GlassCard variant="elevated" className="p-6">
               <GlassCardHeader className="text-center">
-                <GlassCardTitle className="text-2xl font-bold">Setup Wizard</GlassCardTitle>
+                <GlassCardTitle className="text-2xl font-bold">
+                  Setup Wizard
+                </GlassCardTitle>
                 <GlassCardDescription>
                   Configure your YouTube AI Summarizer
                 </GlassCardDescription>
@@ -231,8 +256,8 @@ export default function SetupWizard() {
                             currentStep === step.number
                               ? "bg-gradient-to-r from-accent-primary to-accent-secondary text-white"
                               : currentStep > step.number
-                              ? "bg-accent-primary/20 text-accent-primary"
-                              : "bg-slate-100 text-slate-400"
+                                ? "bg-accent-primary/20 text-accent-primary"
+                                : "bg-slate-100 text-slate-400"
                           }`}
                         >
                           {step.number}
@@ -240,7 +265,9 @@ export default function SetupWizard() {
                         {index < steps.length - 1 && (
                           <div
                             className={`w-8 h-0.5 mx-1 transition-colors ${
-                              currentStep > step.number ? "bg-accent-primary" : "bg-slate-200"
+                              currentStep > step.number
+                                ? "bg-accent-primary"
+                                : "bg-slate-200"
                             }`}
                           />
                         )}
@@ -259,9 +286,10 @@ export default function SetupWizard() {
                     </div>
 
                     <p className="text-sm text-slate-500">
-                      Supadata is used to fetch YouTube video transcripts. Get your API key from{" "}
+                      Supadata is used to fetch YouTube video transcripts. Get
+                      your API key from{" "}
                       <a
-                        href="https://supadata.ai/?ref=devrico003"
+                        href="https://supadata.ai/?ref=jeremiasaguero0322"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-accent-primary hover:underline"
@@ -272,15 +300,17 @@ export default function SetupWizard() {
 
                     {/* API Key Input */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-slate-700">API Key</label>
+                      <label className="text-sm font-medium text-slate-700">
+                        API Key
+                      </label>
                       <div className="flex space-x-2">
                         <Input
                           type="password"
                           value={supadataKey}
                           onChange={(e) => {
-                            setSupadataKey(e.target.value)
-                            setSupadataStatus("idle")
-                            setSupadataError("")
+                            setSupadataKey(e.target.value);
+                            setSupadataStatus("idle");
+                            setSupadataError("");
                           }}
                           placeholder="Enter your Supadata API key"
                           className="flex-1"
@@ -288,7 +318,9 @@ export default function SetupWizard() {
                         <Button
                           variant="outline"
                           onClick={handleTestSupadata}
-                          disabled={!supadataKey.trim() || supadataStatus === "testing"}
+                          disabled={
+                            !supadataKey.trim() || supadataStatus === "testing"
+                          }
                         >
                           {supadataStatus === "testing" ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -315,15 +347,26 @@ export default function SetupWizard() {
 
                     {/* Info box */}
                     <div className="bg-slate-50 rounded-xl p-4 space-y-2 border border-slate-100">
-                      <h4 className="font-medium text-sm text-slate-900">Why Supadata?</h4>
+                      <h4 className="font-medium text-sm text-slate-900">
+                        Why Supadata?
+                      </h4>
                       <ul className="text-sm text-slate-500 space-y-1 list-disc list-inside">
-                        <li>Fetches transcripts from YouTube, TikTok, Instagram</li>
+                        <li>
+                          Fetches transcripts from YouTube, TikTok, Instagram
+                        </li>
                         <li>Supports multiple languages</li>
-                        <li>Provides accurate timestamps for topic detection</li>
-                        <li><strong className="text-slate-700">100 free credits per month</strong></li>
+                        <li>
+                          Provides accurate timestamps for topic detection
+                        </li>
+                        <li>
+                          <strong className="text-slate-700">
+                            100 free credits per month
+                          </strong>
+                        </li>
                       </ul>
                       <p className="text-sm text-amber-600 mt-2">
-                        <strong>Required:</strong> A Supadata API key is needed to fetch video transcripts.
+                        <strong>Required:</strong> A Supadata API key is needed
+                        to fetch video transcripts.
                       </p>
                     </div>
 
@@ -352,33 +395,53 @@ export default function SetupWizard() {
                     </div>
 
                     <p className="text-sm text-slate-500">
-                      Z.AI provides the GLM-4.7 model for generating high-quality summaries.
+                      Z.AI provides the GLM-4.7 model for generating
+                      high-quality summaries.
                     </p>
 
                     {/* Z.AI API Key Input */}
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-slate-700">Z.AI API Key</label>
+                        <label className="text-sm font-medium text-slate-700">
+                          Z.AI API Key
+                        </label>
                         <Input
                           type="password"
                           value={zaiKey}
                           onChange={(e) => {
-                            setZaiKey(e.target.value)
+                            setZaiKey(e.target.value);
                           }}
                           placeholder="Enter your Z.AI API key"
                         />
                       </div>
 
                       <div className="bg-slate-50 rounded-xl p-4 space-y-2 border border-slate-100">
-                        <h4 className="font-medium text-sm text-slate-900">Z.AI GLM-4.7</h4>
+                        <h4 className="font-medium text-sm text-slate-900">
+                          Z.AI GLM-4.7
+                        </h4>
                         <ul className="text-sm text-slate-500 space-y-1 list-disc list-inside">
-                          <li>High-quality summaries with excellent comprehension</li>
+                          <li>
+                            High-quality summaries with excellent comprehension
+                          </li>
                           <li>Fast inference for quick results</li>
                           <li>Supports long video transcripts</li>
                         </ul>
                         <p className="text-xs text-slate-400 mt-2">
-                          Choose between <strong className="text-slate-600">Coding Plan</strong> (starting at $3/month) or <strong className="text-slate-600">API Credit Mode</strong>.{" "}
-                          <a href="https://z.ai/subscribe?ic=D7NHC27OHD" target="_blank" rel="noopener noreferrer" className="text-accent-primary hover:underline">
+                          Choose between{" "}
+                          <strong className="text-slate-600">
+                            Coding Plan
+                          </strong>{" "}
+                          (starting at $3/month) or{" "}
+                          <strong className="text-slate-600">
+                            API Credit Mode
+                          </strong>
+                          .{" "}
+                          <a
+                            href="https://z.ai/subscribe?ic=D7NHC27OHD"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-accent-primary hover:underline"
+                          >
                             Get your key at z.ai
                           </a>
                         </p>
@@ -429,5 +492,5 @@ export default function SetupWizard() {
         </motion.div>
       </div>
     </>
-  )
+  );
 }
