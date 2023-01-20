@@ -26,13 +26,11 @@ Transform lengthy YouTube videos into structured, digestible summaries. YouTube 
 
 - **Node.js 20+** - [Download](https://nodejs.org/)
 - **Supadata Account** - For YouTube transcript extraction
-  - Sign up at [supadata.ai](https://supadata.ai/?ref=jeremiasaguero0322) (referral link)
+  - Sign up at supadata.ai
   - Free tier: 100 credits/month
 - **Z.AI Account** - For AI summarization (GLM-4.7)
-  - Sign up at [z.ai](https://z.ai/subscribe?ic=D7NHC27OHD) (referral link)
+  - Sign up at z.ai
   - Pricing: Coding Plan from $3/month or API on-demand
-
-> **Disclosure**: The links above are referral links. Using them helps support this project at no extra cost to you.
 
 ## Installation
 
@@ -40,8 +38,8 @@ Transform lengthy YouTube videos into structured, digestible summaries. YouTube 
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/jeremiasaguero0322/youtube_summarizer.git
-cd youtube_summarizer
+git clone https://github.com/jeremiasaguero0322/youtube-summarizer.git
+cd youtube-summarizer
 
 # 2. Install dependencies
 npm install --legacy-peer-deps
@@ -73,8 +71,8 @@ npm start
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/jeremiasaguero0322/youtube_summarizer.git
-cd youtube_summarizer
+git clone https://github.com/jeremiasaguero0322/youtube-summarizer.git
+cd youtube-summarizer
 
 # 2. Configure environment
 cp .env.example .env
@@ -150,8 +148,8 @@ Update your API keys anytime from the Settings page.
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 - **Database**: [Prisma](https://www.prisma.io/) + SQLite
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **LLM**: [Z.AI GLM-4.7](https://z.ai/subscribe?ic=D7NHC27OHD)
-- **Transcripts**: [Supadata API](https://supadata.ai/?ref=jeremiasaguero0322)
+- **LLM**: [Z.AI GLM-4.7](https://z.ai/)
+- **Transcripts**: [Supadata API](https://supadata.ai/)
 
 ## Cloud Deployment
 
